@@ -8,6 +8,7 @@ module com.jas777.railops {
     requires org.kordamp.ikonli.javafx;
     requires com.almasb.fxgl.all;
     requires javafx.graphics;
+    requires com.fasterxml.jackson.databind;
 
     opens com.jas777.railops to javafx.fxml;
     exports com.jas777.railops;
