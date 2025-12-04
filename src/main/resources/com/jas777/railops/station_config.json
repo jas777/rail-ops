@@ -1,0 +1,99 @@
+{
+  "stationName": "Gdańsk Kokoszki",
+  "tracks": [
+    {
+      "id": "T1_L",
+      "type": "MAIN",
+      "points": [
+        [
+          10.0,
+          60.0
+        ],
+        [
+          40.0,
+          60.0
+        ]
+      ],
+      "color": "LIMEGREEN"
+    },
+    {
+      "id": "T1_C",
+      "type": "MAIN",
+      "points": [
+        [
+          60.0,
+          60.0
+        ],
+        [
+          100.0,
+          60.0
+        ]
+      ],
+      "color": "LIMEGREEN"
+    },
+    {
+      "id": "T1_R",
+      "type": "MAIN",
+      "points": [
+        [
+          120.0,
+          60.0
+        ],
+        [
+          150.0,
+          60.0
+        ]
+      ],
+      "color": "LIMEGREEN"
+    },
+    {
+      "id": "T2_C",
+      "type": "SIDE",
+      "points": [
+        [
+          60.0,
+          80.0
+        ],
+        [
+          100.0,
+          80.0
+        ]
+      ],
+      "color": "YELLOW"
+    }
+  ],
+  "switches": [
+    {
+      "id": "R1",
+      "p1": [
+        40.0,
+        60.0
+      ],
+      "p2_main": [
+        60.0,
+        60.0
+      ],
+      "p2_side": [
+        60.0,
+        80.0
+      ],
+      "defaultState": "MAIN"
+    },
+    {
+      "id": "R2",
+      "p1": [
+        120.0,
+        60.0
+      ],
+      "p2_main": [
+        100.0,
+        60.0
+      ],
+      "p2_side": [
+        100.0,
+        80.0
+      ],
+      "defaultState": "SIDE"
+    }
+  ]
+}
