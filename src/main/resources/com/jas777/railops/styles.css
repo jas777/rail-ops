@@ -1,0 +1,4 @@
+.station-view {
+    /* Ustawia czarne tło dla głównego kontenera */
+    -fx-background-color: #000000;
+}
