@@ -8,9 +8,12 @@ public class Switch {
     private List<Double> p2_main; // Point for the main route
     private List<Double> p2_side; // Point for the divergent route
     private String defaultState;
-    private boolean isReversed = false; // Added for visual state demonstration
+    private boolean isReversed = false; // visual state demonstration
 
-    // Getters and Setters (ensure they match the JSON fields)
+    private String p1ConnectionId;
+    private String p2MainConnectionId;
+    private String p2SideConnectionId;
+
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 
@@ -28,4 +31,13 @@ public class Switch {
 
     public boolean isReversed() { return isReversed; }
     public void setReversed(boolean reversed) { isReversed = reversed; }
+
+    public String getP1ConnectionId() { return p1ConnectionId; }
+    public void setP1ConnectionId(String p1ConnectionId) { this.p1ConnectionId = p1ConnectionId; }
+
+    public String getP2MainConnectionId() { return p2MainConnectionId; }
+    public void setP2MainConnectionId(String p2MainConnectionId) { this.p2MainConnectionId = p2MainConnectionId; }
+
+    public String getP2SideConnectionId() { return p2SideConnectionId; }
+    public void setP2SideConnectionId(String p2SideConnectionId) { this.p2SideConnectionId = p2SideConnectionId; }
 }

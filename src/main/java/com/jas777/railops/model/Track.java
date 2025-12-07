@@ -8,6 +8,9 @@ public class Track {
     private List<List<Double>> points; // List of [X, Y] coordinates
     private String color;
 
+    private String entryConnectionId;
+    private String exitConnectionId;
+
     // Getters and Setters
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
@@ -20,4 +23,10 @@ public class Track {
 
     public String getColor() { return color; }
     public void setColor(String color) { this.color = color; }
+
+    public String getEntryConnectionId() { return entryConnectionId; }
+    public void setEntryConnectionId(String entryConnectionId) { this.entryConnectionId = entryConnectionId; }
+
+    public String getExitConnectionId() { return exitConnectionId; }
+    public void setExitConnectionId(String exitConnectionId) { this.exitConnectionId = exitConnectionId; }
 }

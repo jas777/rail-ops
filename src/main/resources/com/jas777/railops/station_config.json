@@ -5,94 +5,66 @@
       "id": "T1_L",
       "type": "MAIN",
       "points": [
-        [
-          10.0,
-          60.0
-        ],
-        [
-          40.0,
-          60.0
-        ]
+        [15.0, 90.0],
+        [60.0, 90.0]
       ],
-      "color": "LIMEGREEN"
+      "color": "LIMEGREEN",
+      "entryConnectionId": "NONE",
+      "exitConnectionId": "R1_P1"
     },
     {
       "id": "T1_C",
       "type": "MAIN",
       "points": [
-        [
-          60.0,
-          60.0
-        ],
-        [
-          100.0,
-          60.0
-        ]
+        [90.0, 90.0],
+        [150.0, 90.0]
       ],
-      "color": "LIMEGREEN"
+      "color": "LIMEGREEN",
+      "entryConnectionId": "R1_P2_MAIN",
+      "exitConnectionId": "R2_P2_MAIN"
     },
     {
       "id": "T1_R",
       "type": "MAIN",
       "points": [
-        [
-          120.0,
-          60.0
-        ],
-        [
-          150.0,
-          60.0
-        ]
+        [180.0, 90.0],
+        [225.0, 90.0]
       ],
-      "color": "LIMEGREEN"
+      "color": "LIMEGREEN",
+      "entryConnectionId": "R2_P1",
+      "exitConnectionId": "NONE"
     },
     {
       "id": "T2_C",
       "type": "SIDE",
       "points": [
-        [
-          60.0,
-          80.0
-        ],
-        [
-          100.0,
-          80.0
-        ]
+        [90.0, 120.0],
+        [150.0, 120.0]
       ],
-      "color": "YELLOW"
+      "color": "YELLOW",
+      "entryConnectionId": "R1_P2_SIDE",
+      "exitConnectionId": "R2_P2_SIDE"
     }
   ],
   "switches": [
     {
       "id": "R1",
-      "p1": [
-        40.0,
-        60.0
-      ],
-      "p2_main": [
-        60.0,
-        60.0
-      ],
-      "p2_side": [
-        60.0,
-        80.0
-      ],
+      "p1": [60.0, 90.0],
+      "p1ConnectionId": "T1_L",
+      "p2_main": [90.0, 90.0],
+      "p2MainConnectionId": "T1_C",
+      "p2_side": [90.0, 120.0],
+      "p2SideConnectionId": "T2_C",
       "defaultState": "MAIN"
     },
     {
       "id": "R2",
-      "p1": [
-        120.0,
-        60.0
-      ],
-      "p2_main": [
-        100.0,
-        60.0
-      ],
-      "p2_side": [
-        100.0,
-        80.0
-      ],
+      "p1": [180.0, 90.0],
+      "p1ConnectionId": "T1_R",
+      "p2_main": [150.0, 90.0],
+      "p2MainConnectionId": "T1_C",
+      "p2_side": [150.0, 120.0],
+      "p2SideConnectionId": "T2_C",
       "defaultState": "SIDE"
     }
   ]
