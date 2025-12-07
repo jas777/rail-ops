@@ -5,6 +5,9 @@ import com.jas777.railops.RailOpsApplication;
 import com.jas777.railops.model.StationConfig;
 import com.jas777.railops.model.Track;
 import com.jas777.railops.model.Switch;
+import com.jas777.railops.model.SwitchState;
+import com.jas777.railops.model.TrackLink;
+import com.jas777.railops.logic.LogicalGraphBuilder;
 
 import javafx.geometry.VPos;
 import javafx.scene.Group;
@@ -19,19 +22,20 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class StationView extends Pane {
 
     private final double TRACK_WIDTH = 2.0;
     private final double TEXT_SIZE = 10.0;
-    private final double STUB_LENGTH = 15.0; // Switch stub length
+    private final double STUB_LENGTH = 15.0;
 
-    // Calculated dimensions for the schematic bounding box
     private double schematicWidth = 0.0;
     private double schematicHeight = 0.0;
     private double minX = Double.MAX_VALUE;
     private double minY = Double.MAX_VALUE;
+
+    private Map<String, SwitchState> switchStates = new HashMap<>();
+    private Map<String, List<TrackLink>> logicalGraphMap = new HashMap<>();
 
     private final Group schematicGroup = new Group();
     private Text stationNameText;
@@ -43,11 +47,11 @@ public class StationView extends Pane {
         try {
             StationConfig config = loadConfig("station_config.json");
 
-            // 1. Calculate Bounding Box and Draw Schematic
+            initializeStationLogic(config);
+
             calculateBoundingBox(config);
             drawStation(config);
 
-            // 2. Setup Responsiveness (Horizontal and Vertical centering)
             this.widthProperty().addListener((obs, oldVal, newVal) -> {
                 recenterSchematic();
             });
@@ -55,12 +59,11 @@ public class StationView extends Pane {
                 recenterSchematic();
             });
 
-            // 3. Initial centering
             recenterSchematic();
 
         } catch (IOException e) {
             System.err.println("Error loading station configuration: " + e.getMessage());
-            Text errorText = new Text(100, 100, "Error: Could not load station configuration. Check if Jackson dependency is present.");
+            Text errorText = new Text(100, 100, "Error: Could not load station configuration.");
             errorText.setFill(Color.RED);
             this.getChildren().add(errorText);
         }
@@ -75,18 +78,23 @@ public class StationView extends Pane {
         return mapper.readValue(is, StationConfig.class);
     }
 
-    /**
-     * Calculates the minimum bounding box that encloses all track and switch points.
-     */
+    private void initializeStationLogic(StationConfig config) {
+        for (Switch sw : config.getSwitches()) {
+            switchStates.put(sw.id(), new SwitchState(sw.id(), sw.defaultState()));
+        }
+
+        LogicalGraphBuilder builder = new LogicalGraphBuilder();
+        this.logicalGraphMap = builder.buildLogicalGraph(config);
+
+        System.out.println("Logical Graph Built: " + this.logicalGraphMap.size() + " tracks linked.");
+    }
+
     private void calculateBoundingBox(StationConfig config) {
         double maxX = Double.MIN_VALUE;
         double maxY = Double.MIN_VALUE;
 
-        // Lambda updateBounds removed. Updating min/max directly in this method.
-
-        // Process tracks
         for (Track track : config.getTracks()) {
-            for (List<Double> p : track.getPoints()) {
+            for (List<Double> p : track.points()) {
                 double x = p.get(0);
                 double y = p.get(1);
                 minX = Math.min(minX, x);
@@ -96,9 +104,8 @@ public class StationView extends Pane {
             }
         }
 
-        // Process switches
         for (Switch sw : config.getSwitches()) {
-            List<List<Double>> points = List.of(sw.getP1(), sw.getP2_main(), sw.getP2_side());
+            List<List<Double>> points = List.of(sw.p1(), sw.p2Main(), sw.p2Side());
             for (List<Double> p : points) {
                 double x = p.get(0);
                 double y = p.get(1);
@@ -109,16 +116,13 @@ public class StationView extends Pane {
             }
         }
 
-        // Calculate final width and height, plus a small margin (e.g., 5.0)
         double margin = 5.0;
         schematicWidth = (maxX - minX) + 2 * margin;
         schematicHeight = (maxY - minY) + 2 * margin;
 
-        // Adjust minX/minY to include margin for offset calculation
         minX -= margin;
         minY -= margin;
 
-        // If no points were found (shouldn't happen with valid config)
         if (minX == Double.MAX_VALUE) {
             minX = 0; minY = 0; schematicWidth = 100; schematicHeight = 100;
         }
@@ -126,21 +130,20 @@ public class StationView extends Pane {
 
 
     private void drawStation(StationConfig config) {
+        schematicGroup.getChildren().clear();
 
-        // Map switch tips for quick lookup
-        Map<List<Double>, Switch> tipToSwitchMap = createTipToSwitchMap(config);
-
-        // --- Draw Station Name ---
         stationNameText = new Text(config.getStationName().toUpperCase());
         stationNameText.setFont(Font.font("Arial", 24));
         stationNameText.setFill(Color.YELLOW);
         stationNameText.setY(50);
-        this.getChildren().add(stationNameText);
 
-        // 1. Draw Tracks (Straight Segments)
+        if (!this.getChildren().contains(stationNameText)) {
+            this.getChildren().add(stationNameText);
+        }
+
         for (Track track : config.getTracks()) {
-            List<List<Double>> points = track.getPoints();
-            Color color = Color.web(track.getColor());
+            List<List<Double>> points = track.points();
+            Color color = Color.web(track.color());
 
             for (int i = 0; i < points.size() - 1; i++) {
                 List<Double> p1 = points.get(i);
@@ -150,73 +153,47 @@ public class StationView extends Pane {
             }
         }
 
-        // 2. Draw Switches (Junctions and Labels)
         for (Switch sw : config.getSwitches()) {
-
-            String currentState = sw.getDefaultState().toUpperCase();
+            String currentState = switchStates.get(sw.id()).getState();
 
             // Draw Main Leg
             boolean isMainActive = currentState.equals("MAIN");
-            drawSwitchLeg(sw.getP1(), sw.getP2_main(), Color.LIMEGREEN, isMainActive);
+            drawSwitchLeg(sw.p1(), sw.p2Main(), Color.LIMEGREEN, isMainActive);
 
             // Draw Side Leg
             boolean isSideActive = currentState.equals("SIDE");
-            drawSwitchLeg(sw.getP1(), sw.getP2_side(), Color.YELLOW, isSideActive);
+            drawSwitchLeg(sw.p1(), sw.p2Side(), Color.YELLOW, isSideActive);
 
             // Add Switch Label
             addSwitchLabel(sw);
         }
     }
 
-    /**
-     * Centers the entire schematic group and the station name text (Horizontal & Vertical).
-     */
     private void recenterSchematic() {
         double currentWidth = this.getWidth();
         double currentHeight = this.getHeight();
 
         if (currentWidth <= 0 || currentHeight <= 0) return;
 
-        // Calculate overall offset for the Pane's center
         double centerOffsetX = (currentWidth / 2.0) - (schematicWidth / 2.0);
         double centerOffsetY = (currentHeight / 2.0) - (schematicHeight / 2.0);
-
-        // Final offset must compensate for:
-        // 1. Centering the bounding box: centerOffset
-        // 2. Moving the bounding box from its minX/minY origin to (0,0): -minX and -minY
 
         schematicGroup.setTranslateX(centerOffsetX - minX);
         schematicGroup.setTranslateY(centerOffsetY - minY);
 
-        // Center the station name text (outside the group)
         if (stationNameText != null) {
             double textWidth = stationNameText.getLayoutBounds().getWidth();
             stationNameText.setX((currentWidth / 2) - (textWidth / 2));
         }
     }
 
-
-    private Map<List<Double>, Switch> createTipToSwitchMap(StationConfig config) {
-        Map<List<Double>, Switch> map = new HashMap<>();
-        for (Switch sw : config.getSwitches()) {
-            map.put(sw.getP2_main(), sw);
-            map.put(sw.getP2_side(), sw);
-        }
-        return map;
-    }
-
-
     private void drawLine(double startX, double startY, double endX, double endY, Color color) {
-        // Draws line to the Group. Coordinates are relative to the Group's origin.
         Line line = new Line(startX, startY, endX, endY);
         line.setStroke(color);
         line.setStrokeWidth(TRACK_WIDTH);
         schematicGroup.getChildren().add(line);
     }
 
-    /**
-     * Draws a full track segment.
-     */
     private void drawContinuousTrackSegment(List<Double> p1, List<Double> p2, Color color) {
         double x1 = p1.get(0);
         double y1 = p1.get(1);
@@ -226,10 +203,6 @@ public class StationView extends Pane {
         drawLine(x1, y1, x2, y2, color);
     }
 
-
-    /**
-     * Draws the switch leg. If active, draws full line. If inactive, draws track stub (half length).
-     */
     private void drawSwitchLeg(List<Double> p1, List<Double> p2, Color color, boolean isActive) {
         double x1 = p1.get(0);
         double y1 = p1.get(1);
@@ -243,18 +216,11 @@ public class StationView extends Pane {
         if (length < 0.1) return;
 
         if (isActive) {
-            drawLine(x1, y1, x2, y2, color); // Draw full line
+            drawLine(x1, y1, x2, y2, color);
         } else {
-            // 1. Switch Stub (Gray, fixed length) - Draw from heel (p1) toward tip (p2)
-            double stub1X = x1 + dx * (STUB_LENGTH / length);
-            double stub1Y = y1 + dy * (STUB_LENGTH / length);
-            drawLine(x1, y1, stub1X, stub1Y, Color.GRAY);
-
-            // 2. Track Stub (Color, half length) - Draw from tip (p2) toward heel (p1)
             double dx_rev = x1 - x2;
             double dy_rev = y1 - y2;
 
-            // Final point is the midpoint (p2 + vector * 0.5)
             double finalX = x2 + dx_rev * 0.5;
             double finalY = y2 + dy_rev * 0.5;
 
@@ -263,19 +229,34 @@ public class StationView extends Pane {
     }
 
     private void addSwitchLabel(Switch sw) {
-        double x = sw.getP1().get(0);
-        double y = sw.getP1().get(1);
-        String label = sw.getId();
+        double x = sw.p1().get(0);
+        double y = sw.p1().get(1);
+        String label = sw.id();
 
         Text text = new Text(label);
         text.setFill(Color.GRAY);
         text.setFont(Font.font("Arial", TEXT_SIZE));
 
-        // Position the text (relative to the Group)
         text.setTextOrigin(VPos.BOTTOM);
         text.setX(x - text.getLayoutBounds().getWidth() / 2.0);
         text.setY(y - 10);
 
         schematicGroup.getChildren().add(text);
+    }
+
+    public void setSwitchState(String switchId, String newState) {
+        SwitchState state = switchStates.get(switchId);
+        if (state != null) {
+            state.setState(newState.toUpperCase());
+            try {
+                // TODO: redraw
+            } catch (Exception e) {
+                System.err.println("Error redrawing station: " + e.getMessage());
+            }
+        }
+    }
+
+    public Map<String, List<TrackLink>> getLogicalGraphMap() {
+        return logicalGraphMap;
     }
 }

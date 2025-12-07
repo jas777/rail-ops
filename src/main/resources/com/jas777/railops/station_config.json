@@ -20,8 +20,8 @@
         [150.0, 90.0]
       ],
       "color": "LIMEGREEN",
-      "entryConnectionId": "R1_P2_MAIN",
-      "exitConnectionId": "R2_P2_MAIN"
+      "entryConnectionId": "R1_p2Main",
+      "exitConnectionId": "R2_p2Main"
     },
     {
       "id": "T1_R",
@@ -42,8 +42,8 @@
         [150.0, 120.0]
       ],
       "color": "YELLOW",
-      "entryConnectionId": "R1_P2_SIDE",
-      "exitConnectionId": "R2_P2_SIDE"
+      "entryConnectionId": "R1_p2Side",
+      "exitConnectionId": "R2_p2Side"
     }
   ],
   "switches": [
@@ -51,9 +51,9 @@
       "id": "R1",
       "p1": [60.0, 90.0],
       "p1ConnectionId": "T1_L",
-      "p2_main": [90.0, 90.0],
+      "p2Main": [90.0, 90.0],
       "p2MainConnectionId": "T1_C",
-      "p2_side": [90.0, 120.0],
+      "p2Side": [90.0, 120.0],
       "p2SideConnectionId": "T2_C",
       "defaultState": "MAIN"
     },
@@ -61,9 +61,9 @@
       "id": "R2",
       "p1": [180.0, 90.0],
       "p1ConnectionId": "T1_R",
-      "p2_main": [150.0, 90.0],
+      "p2Main": [150.0, 90.0],
       "p2MainConnectionId": "T1_C",
-      "p2_side": [150.0, 120.0],
+      "p2Side": [150.0, 120.0],
       "p2SideConnectionId": "T2_C",
       "defaultState": "SIDE"
     }
