@@ -19,6 +19,16 @@ public class PathFinder {
     public List<String> findPath(String startNodeId, String targetNodeId,
                                  Map<String, String> switchStates) {
 
+        System.out.println("\n=== PathFinder Debug ===");
+        System.out.println("Start: " + startNodeId);
+        System.out.println("Target: " + targetNodeId);
+        System.out.println("Available nodes in graph: " + logicalGraph.keySet());
+
+        if (!logicalGraph.containsKey(startNodeId)) {
+            System.out.println("ERROR: Start node not in graph!");
+            return null;
+        }
+
         Map<String, String> previous = new HashMap<>();
         Map<String, Double> distances = new HashMap<>();
         PriorityQueue<NodeDistance> queue = new PriorityQueue<>(
@@ -36,19 +46,29 @@ public class PathFinder {
             if (visited.contains(currentNode)) continue;
             visited.add(currentNode);
 
+            System.out.println("Visiting: " + currentNode);
+
             if (currentNode.equals(targetNodeId)) {
-                return reconstructPath(previous, startNodeId, targetNodeId);
+                List<String> path = reconstructPath(previous, startNodeId, targetNodeId);
+                System.out.println("Path found: " + path);
+                return path;
             }
 
             List<TrackLink> neighbors = logicalGraph.getOrDefault(currentNode, new ArrayList<>());
+            System.out.println("  Neighbors: " + neighbors.size());
 
             for (TrackLink link : neighbors) {
+                System.out.println("    Checking link to: " + link.targetTrackId());
+
                 // Check if this link is traversable given current switch states
                 if (link.isConditional()) {
                     String requiredState = link.requiredSwitchState();
                     String actualState = switchStates.get(link.requiredSwitchId());
-                    if (!requiredState.equals(actualState)) {
-                        continue; // This path is not available
+                    System.out.println("      Conditional: needs " + link.requiredSwitchId() + "=" + requiredState +
+                            ", actual=" + actualState);
+                    if (actualState == null || !requiredState.equals(actualState)) {
+                        System.out.println("      BLOCKED - switch in wrong position");
+                        continue;
                     }
                 }
 
@@ -59,11 +79,14 @@ public class PathFinder {
                     distances.put(neighbor, newDist);
                     previous.put(neighbor, currentNode);
                     queue.offer(new NodeDistance(neighbor, newDist));
+                    System.out.println("      Added to queue");
                 }
             }
         }
 
-        return null; // No path found
+        System.out.println("No path found - exhausted all possibilities");
+        System.out.println("Visited nodes: " + visited);
+        return null;
     }
 
     private List<String> reconstructPath(Map<String, String> previous,
@@ -72,10 +95,10 @@ public class PathFinder {
         String current = target;
 
         while (current != null) {
-            path.addFirst(current);
+            path.add(0, current);
             current = previous.get(current);
             if (current != null && current.equals(start)) {
-                path.addFirst(start);
+                path.add(0, start);
                 break;
             }
         }

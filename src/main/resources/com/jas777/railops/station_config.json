@@ -1,71 +1,115 @@
 {
-  "stationName": "Gdańsk Kokoszki",
+  "stationName": "Central Station",
   "tracks": [
     {
-      "id": "T1_L",
-      "type": "MAIN",
-      "points": [
-        [15.0, 90.0],
-        [60.0, 90.0]
-      ],
-      "color": "LIMEGREEN",
-      "entryConnectionId": "NONE",
-      "exitConnectionId": "R1_P1"
+      "id": "T_ENTRY_WEST",
+      "type": "MAIN_LINE",
+      "points": [[50, 100], [150, 100]],
+      "color": "#888888",
+      "entryNodeId": "ENTRY_WEST",
+      "exitNodeId": "SW1_P1"
     },
     {
-      "id": "T1_C",
-      "type": "MAIN",
-      "points": [
-        [90.0, 90.0],
-        [150.0, 90.0]
-      ],
-      "color": "LIMEGREEN",
-      "entryConnectionId": "R1_p2Main",
-      "exitConnectionId": "R2_p2Main"
+      "id": "T_PLATFORM_1",
+      "type": "PLATFORM_TRACK",
+      "points": [[250, 80], [450, 80]],
+      "color": "#4169E1",
+      "entryNodeId": "SW1_P2M",
+      "exitNodeId": "SW2_P1"
     },
     {
-      "id": "T1_R",
-      "type": "MAIN",
-      "points": [
-        [180.0, 90.0],
-        [225.0, 90.0]
-      ],
-      "color": "LIMEGREEN",
-      "entryConnectionId": "R2_P1",
-      "exitConnectionId": "NONE"
+      "id": "T_PLATFORM_2",
+      "type": "PLATFORM_TRACK",
+      "points": [[250, 120], [450, 120]],
+      "color": "#4169E1",
+      "entryNodeId": "SW1_P2S",
+      "exitNodeId": "SW2_P2S"
     },
     {
-      "id": "T2_C",
-      "type": "SIDE",
-      "points": [
-        [90.0, 120.0],
-        [150.0, 120.0]
-      ],
-      "color": "YELLOW",
-      "entryConnectionId": "R1_p2Side",
-      "exitConnectionId": "R2_p2Side"
+      "id": "T_EXIT_EAST",
+      "type": "MAIN_LINE",
+      "points": [[550, 100], [650, 100]],
+      "color": "#888888",
+      "entryNodeId": "SW2_P2M",
+      "exitNodeId": "EXIT_EAST"
     }
   ],
   "switches": [
     {
-      "id": "R1",
-      "p1": [60.0, 90.0],
-      "p1ConnectionId": "T1_L",
-      "p2Main": [90.0, 90.0],
-      "p2MainConnectionId": "T1_C",
-      "p2Side": [90.0, 120.0],
-      "p2SideConnectionId": "T2_C",
-      "defaultState": "MAIN"
+      "id": "SW1",
+      "p1": [150, 100],
+      "p2Main": [250, 80],
+      "p2Side": [250, 120],
+      "defaultState": "MAIN",
+      "p1ConnectionId": "SW1_P1",
+      "p2MainConnectionId": "SW1_P2M",
+      "p2SideConnectionId": "SW1_P2S"
     },
     {
-      "id": "R2",
-      "p1": [180.0, 90.0],
-      "p1ConnectionId": "T1_R",
-      "p2Main": [150.0, 90.0],
-      "p2MainConnectionId": "T1_C",
-      "p2Side": [150.0, 120.0],
-      "p2SideConnectionId": "T2_C",
-      "defaultState": "SIDE"
+      "id": "SW2",
+      "p1": [450, 100],
+      "p2Main": [550, 100],
+      "p2Side": [450, 120],
+      "defaultState": "MAIN",
+      "p1ConnectionId": "SW2_P1",
+      "p2MainConnectionId": "SW2_P2M",
+      "p2SideConnectionId": "SW2_P2S"
+    }
+  ],
+  "waypoints": [
+    {
+      "id": "WP_WEST",
+      "name": "West Entry",
+      "position": [50, 95],
+      "type": "ENTRANCE"
+    },
+    {
+      "id": "WP_EAST",
+      "name": "East Entry",
+      "position": [650, 95],
+      "type": "ENTRANCE"
+    },
+    {
+      "id": "WP_PLATFORM_1",
+      "name": "Platform 1",
+      "position": [350, 70],
+      "type": "PLATFORM"
+    },
+    {
+      "id": "WP_PLATFORM_2",
+      "name": "Platform 2",
+      "position": [350, 130],
+      "type": "PLATFORM"
+    }
+  ],
+  "signals": [
+    {
+      "id": "SIG_WEST_ENTRY",
+      "name": "Tm1",
+      "position": [120, 100],
+      "currentAspect": "GREEN",
+      "protectedNodeId": "SW1_P1"
+    },
+    {
+      "id": "SIG_P1_EXIT",
+      "name": "Sm1",
+      "position": [480, 80],
+      "currentAspect": "RED",
+      "protectedNodeId": "SW2_P1"
+    },
+    {
+      "id": "SIG_P2_EXIT",
+      "name": "Sm2",
+      "position": [480, 120],
+      "currentAspect": "RED",
+      "protectedNodeId": "SW2_P2S"
+    },
+    {
+      "id": "SIG_EAST_EXIT",
+      "name": "Tm2",
+      "position": [580, 100],
+      "currentAspect": "GREEN",
+      "protectedNodeId": "EXIT_EAST"
     }
   ]
 }
